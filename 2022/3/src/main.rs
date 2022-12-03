@@ -28,6 +28,7 @@
 
 // Find the item type that appears in both compartments of each rucksack. What is the sum of the priorities of those item types?
 
+// --- Part Two ---
 // As you finish identifying the misplaced items, the Elves come to you with another issue.
 
 // For safety, the Elves are divided into groups of three. Every Elf carries a badge that identifies their group. For efficiency, within each group of three Elves, the badge is the only item type carried by all three Elves. That is, if a group's badge is item type B, then all three Elves will have item type B somewhere in their rucksack, and at most two of the Elves will be carrying any other item type.
@@ -55,32 +56,49 @@
 fn main() {
     let input = String::from(include_str!("input.txt"));
     let lines = input.split("\n");
+    let mut lines_iter = lines.clone().into_iter();
+
+    let mut groups = Vec::new();
+
+    for i in 0..100 {
+        let mut group = Vec::new();
+        group.push(lines_iter.next().unwrap());
+        group.push(lines_iter.next().unwrap());
+        group.push(lines_iter.next().unwrap());
+        groups.push(group);
+    }
 
     let mut sum = 0;
 
-    for line in lines {
-        let first = line.chars().take(line.len() / 2).collect::<Vec<char>>();
-        let second = line.chars().skip(line.len() / 2).collect::<Vec<char>>();
+    for group in groups.iter() {
+        // find the value that is in all three
+        let mut common = Vec::new();
+        for i in 0..group[0].len() {
+            let c = group[0].chars().nth(i).unwrap();
+            if group[1].contains(c) && group[2].contains(c) {
+                common.push(c);
+            }
+        }
 
-        // Find the only element that appears in both
-        let mut common = first
-            .iter()
-            .filter(|&x| second.contains(x))
-            .collect::<Vec<&char>>();
+        // println!("common: {:?}", common);
 
-        // Get the priority of the common element
-        // lowercase a-z = 1-26
-        // uppercase A-Z = 27-52
-        let priority = match common[0] {
-            'a'..='z' => *common[0] as u32 - 96,
-            'A'..='Z' => *common[0] as u32 - (64 - 26),
-            _ => 0,
-        };
-
-        sum += priority as u32;
-
-        println!("{:?}, {}", common, priority);
+        // find the priority of the common value
+        let c = common.first().unwrap();
+        if c.is_lowercase() {
+            sum += *c as u32 - 96;
+        } else {
+            sum += *c as u32 - 38;
+        }
+        println!(
+            "{} {}",
+            c,
+            if c.is_lowercase() {
+                *c as u32 - 96
+            } else {
+                *c as u32 - 38
+            }
+        );
     }
 
-    println!("{}", sum);
+    println!("sum: {}", sum);
 }
