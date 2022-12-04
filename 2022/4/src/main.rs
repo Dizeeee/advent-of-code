@@ -54,6 +54,8 @@
 
 // In how many assignment pairs do the ranges overlap?
 
+use rayon::prelude::*;
+
 fn main() {
     let input = include_str!("input.txt");
 
@@ -62,52 +64,64 @@ fn main() {
 }
 
 fn part1(input: String) {
-    let lines = input.split("\n");
-    let mut sum = 0;
-    for line in lines {
-        let mut sections = line.split(",");
-        let mut section1 = sections.next().unwrap().split("-");
-        let mut section2 = sections.next().unwrap().split("-");
-        let section1_start = section1.next().unwrap().parse::<i32>().unwrap();
-        let section1_end = section1.next().unwrap().parse::<i32>().unwrap();
-        let section2_start = section2.next().unwrap().parse::<i32>().unwrap();
-        let section2_end = section2.next().unwrap().parse::<i32>().unwrap();
-        if section1_start <= section2_start && section1_end >= section2_end {
-            sum += 1;
-        } else if section2_start <= section1_start && section2_end >= section1_end {
-            sum += 1;
-        }
+    let lines: Vec<&str> = input.split("\n").collect();
+
+    let sum: u64 = lines
+        .into_par_iter()
+        .map(|line| fully_contains(line.into()))
+        .sum();
+
+    println!("Part 1: {:#?}", sum);
+}
+
+fn fully_contains(input: String) -> u64 {
+    let mut sections = input.split(",");
+    let mut section1 = sections.next().unwrap().split("-");
+    let mut section2 = sections.next().unwrap().split("-");
+    let section1_start = section1.next().unwrap().parse::<i32>().unwrap();
+    let section1_end = section1.next().unwrap().parse::<i32>().unwrap();
+    let section2_start = section2.next().unwrap().parse::<i32>().unwrap();
+    let section2_end = section2.next().unwrap().parse::<i32>().unwrap();
+
+    if (section1_start <= section2_start && section1_end >= section2_end)
+        || (section1_start >= section2_start && section1_end <= section2_end)
+    {
+        return 1;
     }
-    println!("Part 1: {}", sum);
+
+    return 0;
 }
 
 fn part2(input: String) {
-    let lines = input.split("\n");
+    let lines: Vec<&str> = input.split("\n").collect();
 
-    let mut sum = 0;
+    let sum: u64 = lines
+        .into_par_iter()
+        .map(|line| partially_contains(line.into()))
+        .sum();
 
-    for line in lines {
-        let mut sections = line.split(",");
-        let mut section1 = sections.next().unwrap().split("-");
-        let mut section2 = sections.next().unwrap().split("-");
-        let section1_start = section1.next().unwrap().parse::<i32>().unwrap();
-        let section1_end = section1.next().unwrap().parse::<i32>().unwrap();
-        let section2_start = section2.next().unwrap().parse::<i32>().unwrap();
-        let section2_end = section2.next().unwrap().parse::<i32>().unwrap();
-
-        let mut overlap = 0;
-
-        if section1_start <= section2_start && section1_end >= section2_end {
-            overlap += 1;
-        } else if section2_start <= section1_start && section2_end >= section1_end {
-            overlap += 1;
-        } else if section1_start <= section2_start && section1_end >= section2_start {
-            overlap += 1;
-        } else if section2_start <= section1_start && section2_end >= section1_start {
-            overlap += 1;
-        }
-
-        sum += overlap;
-    }
     println!("Part 2: {}", sum);
+}
+
+fn partially_contains(input: String) -> u64 {
+    let mut sections = input.split(",");
+    let mut section1 = sections.next().unwrap().split("-");
+    let mut section2 = sections.next().unwrap().split("-");
+    let section1_start = section1.next().unwrap().parse::<i32>().unwrap();
+    let section1_end = section1.next().unwrap().parse::<i32>().unwrap();
+    let section2_start = section2.next().unwrap().parse::<i32>().unwrap();
+    let section2_end = section2.next().unwrap().parse::<i32>().unwrap();
+
+    let mut overlap = 0;
+
+    if section1_start <= section2_start && section1_end >= section2_end {
+        return 1;
+    } else if section2_start <= section1_start && section2_end >= section1_end {
+        return 1;
+    } else if section1_start <= section2_start && section1_end >= section2_start {
+        return 1;
+    } else if section2_start <= section1_start && section2_end >= section1_start {
+        return 1;
+    }
+    0
 }
