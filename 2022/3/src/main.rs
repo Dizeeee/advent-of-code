@@ -60,7 +60,7 @@ fn main() {
 
     let mut groups = Vec::new();
 
-    for i in 0..100 {
+    for _ in 0..100 {
         let mut group = Vec::new();
         group.push(lines_iter.next().unwrap());
         group.push(lines_iter.next().unwrap());
