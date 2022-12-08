@@ -146,7 +146,7 @@ fn part2(input: String) {
         for (j, num) in row.iter().enumerate() {
             // Check left
             let mut visible_left = 0;
-            for k in 0..j {
+            for k in (0..j).rev() {
                 visible_left += 1;
                 if grid[i][k] >= *num {
                     break;
@@ -164,7 +164,7 @@ fn part2(input: String) {
 
             // Check up
             let mut visible_up = 0;
-            for k in 0..i {
+            for k in (0..i).rev() {
                 visible_up += 1;
                 if grid[k][j] >= *num {
                     break;
